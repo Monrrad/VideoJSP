@@ -53,7 +53,7 @@ public class Conexion {
         }
     }
 
-    public Connection getCon() {
+    public  Connection getCon() {
         return con;
     }
 
