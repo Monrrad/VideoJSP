@@ -1,4 +1,4 @@
-package co.empresa.modelo;
+package co.empresa.test.modelo;
 
 import java.io.Serializable;
 
