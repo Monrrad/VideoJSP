@@ -7,63 +7,60 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Conexion {
-	private Connection con = null;
-	private PreparedStatement preparedStatement;
-
-	private static final String url = "jdbc:mysql://localhost:3306/";
-	private static final String dbName = "sistema";
-	private static final String driver = "com.mysql.jdbc.Driver";
-	private static final String userName = "root";
-	private static final String password = "";
-
-	public Conexion (String driver, String url, String dbName, String userName, String passwprd) {
-		
-		try {
-			Class.forName(driver).newInstance();
-			con = (Connection)DriverManager.getConnection(url+dbName,userName,password);
-					
-		}catch (InstantiationException | IllegalAccessException 
-				| ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		
-	}
-
-	public void cerrarConexion() {
-		try {
-			con.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
 	
-	public ResultSet query() throws SQLException {
-		ResultSet res = preparedStatement.executeQuery();
-		return res;
-	}
-	
-	public int execute() throws SQLException {
-        if (preparedStatement != null) {
-            return preparedStatement.executeUpdate();
-        } else {
-            throw new SQLException("La declaración preparada es nula");
+	private static Connection con = null;
+    private static Conexion instance;
+    private PreparedStatement preparedStatement;
+    
+    private static final String URL = "jdbc:postgresql://localhost:5432/";
+    private static final String DB_NAME = "sistema";
+    private static final String DRIVER = "org.postgresql.Driver";
+    private static final String USERNAME = "postgres";
+    private static final String PASSWORD = "1234";
+
+    private Conexion() {
+        try {
+            Class.forName(DRIVER);
+            String connectionUrl = URL + DB_NAME + "?user=" + USERNAME + "&password=" + PASSWORD;
+            con = DriverManager.getConnection(connectionUrl);
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
         }
     }
-
-    public  Connection getCon() {
+    
+    public static synchronized Conexion getConexion() {
+        if (instance == null) {
+            instance = new Conexion();
+        }
+        return instance;
+    }
+    
+    public void cerrarConexion() {
+        try {
+            if (con != null && !con.isClosed()) {
+                con.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public ResultSet query() throws SQLException {
+        return preparedStatement.executeQuery();
+    }
+    
+    public int execute() throws SQLException {
+        return preparedStatement.executeUpdate();
+    }
+    
+    public Connection getCon() {
         return con;
     }
-
+    
     public PreparedStatement setPreparedStatement(String sql) throws SQLException {
-        if (con != null) {
-            preparedStatement = con.prepareStatement(sql);
-            return preparedStatement;
-        } else {
-            throw new SQLException("La conexión es nula");
-        }
+        preparedStatement = con.prepareStatement(sql);
+        return preparedStatement;
     }
+    
 }
 

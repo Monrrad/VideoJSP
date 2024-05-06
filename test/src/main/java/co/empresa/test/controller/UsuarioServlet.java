@@ -39,12 +39,7 @@ public class UsuarioServlet extends HttpServlet {
 	 * @see Servlet#init(ServletConfig)
 	 */
 	public void init(ServletConfig config) throws ServletException{
-		try {
-			this.usuarioDao = new UsuarioDao();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.usuarioDao = new UsuarioDao();
 	}
 
 	/**

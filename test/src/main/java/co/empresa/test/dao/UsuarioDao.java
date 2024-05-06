@@ -11,18 +11,18 @@ import co.empresa.test.util.Conexion;
 
 public class UsuarioDao {
 	
-	private Conexion conexion;
+private Conexion conexion;
 	
-	private static final String INSERT_USUARIO_SQL = "INSERT INTO usuario (nombre, email, pais) VALUES (?, ?, ?,);";
+	private static final String INSERT_USUARIO_SQL = "INSERT INTO usuario (nombre, email, pais) VALUES (?,?,?);";
 	private static final String DELETE_USUARIO_SQL = "DELETE FROM usuario WHERE id = ?;";
-	private static final String UPDATE_USUARIO_SQL = "UPDATE usuario SET nombre = ?, email = ?, pais = ? WHERE id =?;";
-	private static final String SELECT_USUARIO_BY_ID = "SELECT * FROM usuario WHERE id =?;";
+	private static final String UPDATE_USUARIO_SQL = "UPDATE usuario SET nombre = ?, email = ?, pais = ? WHERE id = ?;";
+	private static final String SELECT_USUARIO_BY_ID = "SELECT * FROM usuario WHERE id = ?;";
 	private static final String SELECT_ALL_USUARIOS = "SELECT * FROM usuario;";
-
-	public UsuarioDao() throws SQLException{
+	
+	public UsuarioDao() {
 		this.conexion = Conexion.getConexion();
 	}
-	
+
 	public void insert(Usuario usuario) throws SQLException{
 		try {
 			PreparedStatement preparedStatement = conexion.setPreparedStatement(INSERT_USUARIO_SQL);
@@ -30,25 +30,22 @@ public class UsuarioDao {
 			preparedStatement.setString(2, usuario.getEmail());
 			preparedStatement.setString(3, usuario.getPais());
 			conexion.execute();
-		}catch (SQLException e) {
-			
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		 
 	}
 	
-    public void delete (int id) throws SQLException{
-	 try {
+	public void delete(int id) throws SQLException {
+		try {
 			PreparedStatement preparedStatement = conexion.setPreparedStatement(DELETE_USUARIO_SQL);
 			preparedStatement.setInt(1, id);
-			
 			conexion.execute();
-		}catch (SQLException e) {
-			
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-	 
- }
- 
-    public void update(Usuario usuario) {
+	}
+	
+	public void update (Usuario usuario) throws SQLException{
 		try {
 			PreparedStatement preparedStatement = conexion.setPreparedStatement(UPDATE_USUARIO_SQL);
 			preparedStatement.setString(1, usuario.getNombre());
@@ -56,14 +53,34 @@ public class UsuarioDao {
 			preparedStatement.setString(3, usuario.getPais());
 			preparedStatement.setInt(4, usuario.getId());
 			conexion.execute();
-		}catch (SQLException e) {
-			
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
- }
- 
-    public Usuario select(int id){
+	}
+	
+	public List<Usuario> selectAll () {
+		List<Usuario> usuarios = new ArrayList<Usuario>();
 		
+		try {
+			PreparedStatement preparedStatement = conexion.setPreparedStatement(SELECT_ALL_USUARIOS);
+			ResultSet rs = conexion.query();
+			
+			while(rs.next()) {
+				int id = rs.getInt("id");
+				String nombre = rs.getString("nombre");
+				String email = rs.getString("email");
+				String pais = rs.getString("pais");
+				usuarios.add(new Usuario(id, nombre, email, pais));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return usuarios;
+	}
+	
+	public Usuario select (int id) {
 		Usuario usuario = null;
+		
 		try {
 			PreparedStatement preparedStatement = conexion.setPreparedStatement(SELECT_USUARIO_BY_ID);
 			preparedStatement.setInt(1, id);
@@ -74,32 +91,13 @@ public class UsuarioDao {
 				String nombre = rs.getString("nombre");
 				String email = rs.getString("email");
 				String pais = rs.getString("pais");
-				usuario = new Usuario (id,nombre,email,pais);
+				usuario = new Usuario(id, nombre, email, pais);
 			}
-		}catch (SQLException e) {
-			
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 		return usuario;
 	}
-		
-    public List<Usuario> selectAll(){
-			
-			List <Usuario> usuarios = new ArrayList<>();
-			try {
-				ResultSet rs = conexion.query();
-				
-				while(rs.next()) {
-					int id = rs.getInt("id");
-					String nombre = rs.getString("nombre");
-					String email = rs.getString("email");
-					String pais = rs.getString("pais");
-					usuarios.add(new Usuario (id, nombre, email, pais));
-				}
-			}catch (SQLException e) {
-				
-			}
-			return usuarios;
-		}
-		 
-	}
+	
+}
 	
